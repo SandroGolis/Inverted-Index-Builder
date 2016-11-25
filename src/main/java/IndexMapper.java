@@ -25,7 +25,7 @@ import java.util.regex.MatchResult;
 
 public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, TermInfo> {
     private static final String NEW_LINES = "[\\r\\n]+";
-    private static final String NOT_ALPHABETIC = "[^a-zA-Z]+";
+    private static final String NOT_ALPHABETIC = "[^a-zA-Z]";
     static HashSet<String> stopWords = new HashSet<>();
 
     protected void setup(Context context) throws IOException, InterruptedException {
@@ -38,12 +38,22 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
         HashMap<String, IntWritableArray> offsets = new HashMap<>();
         EnglishStemmer stemmer = new EnglishStemmer();
 
-        String pageContent = page.getContent().replaceAll(NEW_LINES, " ");
+        String pageContent = page.getContent();
         Scanner scanner = new Scanner(pageContent).useDelimiter(NOT_ALPHABETIC);
 
+        int lastStart = 0, lastEnd = 0, addition = 0;
         while (scanner.hasNext()) {
             String token = scanner.next().toLowerCase();
-            MatchResult matchResult = scanner.match();
+            MatchResult match = scanner.match();
+
+            int start = match.start();
+
+            if (start < lastStart) {
+                // Scanner has scanned another 1K buffer
+                addition += lastEnd + 1;
+            }
+            lastStart = start;
+            lastEnd = match.end();
 
             // Normalize the word with porter stemmer.
             stemmer.setCurrent(token);
@@ -55,12 +65,11 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
                 continue;
             }
             // Update offsets HashMap
-            int indexOffset = matchResult.start();
             if (offsets.containsKey(token)) {
-                offsets.get(token).add(indexOffset);
+                offsets.get(token).add(lastStart + addition);
             } else {
                 IntWritableArray list = new IntWritableArray();
-                list.add(indexOffset);
+                list.add(lastStart + addition);
                 offsets.put(token, list);
             }
         }
