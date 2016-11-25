@@ -1,3 +1,4 @@
+import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Reducer;
 import util.TermInfo;
 import util.TermInfoArray;
@@ -14,10 +15,10 @@ public class IndexReducer extends Reducer<TextPair, TermInfo, TextPair, TermInfo
 
         List<TermInfo> list = new ArrayList<>();
         for (TermInfo termInfo : values) {
-            list.add(termInfo);
+            list.add(WritableUtils.clone(termInfo, context.getConfiguration()));
         }
         Integer DF = list.size();
-        TermInfoArray termsArray = new TermInfoArray(list.toArray(new TermInfo[DF]));
+        TermInfoArray termsArray = new TermInfoArray(list.toArray(new TermInfo[]{}));
 
 //            Text term = new Text(termAndPageId.getFirst());
 //            IntWritable DFwritable = new IntWritable(DF);

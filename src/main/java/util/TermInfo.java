@@ -2,11 +2,9 @@ package util;
 
 import com.google.common.base.Joiner;
 import org.apache.hadoop.io.Writable;
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 public class TermInfo implements Writable{
     private Long offset;
@@ -14,8 +12,7 @@ public class TermInfo implements Writable{
     private IntWritableArray indices;
 
     // empty constructor for reflection
-    public TermInfo() {
-    }
+    public TermInfo() {}
 
     public TermInfo(Long offset, IntWritableArray indices) {
         this.offset = offset;
