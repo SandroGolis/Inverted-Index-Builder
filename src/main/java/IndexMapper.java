@@ -14,11 +14,19 @@ import java.util.Scanner;
 import java.util.jar.JarFile;
 import java.util.regex.MatchResult;
 
+/*
+ * The Mapper reads WikipediaPages.
+ * We consider only terms with alphabetical characters.
+ * Each term is stemmed with porter stemmer and checked against the stop list words.
+ * The mapper outputs aggregated values for each term as:
+ * Term,docId   <Offset_1, TF, [idx1,...,idx_TF]>
+ *
+ */
 
 public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, TermInfo> {
     private static final String NEW_LINES = "[\\r\\n]+";
     private static final String NOT_ALPHABETIC = "[^a-zA-Z]+";
-    static HashSet<String> stopWords = new HashSet<String>();
+    static HashSet<String> stopWords = new HashSet<>();
 
     protected void setup(Context context) throws IOException, InterruptedException {
         initializeStopWords("stop-words.txt");

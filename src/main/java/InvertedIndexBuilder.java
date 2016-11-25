@@ -1,12 +1,31 @@
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import util.*;
 import java.io.File;
 
+
+/*
+ * The inverted index list will be sorted alphabetically as a side effect of mapreduce.
+ * In addition to that, we want each record in the inverted index to be sorted by pageId.
+ * So, for each term, the list of documents it appears in them will be sorted from earliest to latest.
+ * This sorting will make more efficient query processing.
+ * For this reason, the mapper outputs the key value with redundant pageId. KEY=(Term,PageId)
+ * Due to mapreduces internal sorting, this will make the list of pages to appear sorted.
+ *
+ * The record in the final inverted index will be of the following form:
+ *
+ * Term,DF   <Offset_1, TF1, [idx_1,...,idx_TF1]> ,..., <Offset_DF, TF2, [idx_1,...,idx_TF2]>
+ *
+ * Term      - a stemmed token using porter stemmer
+ * DF        - document frequency of this term
+ * Offset_1  - the offset till the beginning of the first page
+ * TF1       - term frequency in the page that starts at Offset_1
+ * idx_      - indices of the beginning of the term inside the page
+ *
+*/
 
 public class InvertedIndexBuilder {
     static Boolean LOCAL_MACHINE = true;

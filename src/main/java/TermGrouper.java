@@ -2,7 +2,14 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
 import util.TextPair;
 
-// The records for the reducer should be grouped only by the term part of the key
+/*
+ * The mapper outputs key = (term, pageId)
+ * Without the TermGrouper, the reducer would have received list of values corresponding to the same key,
+ * so 2 terms from different documents would have ended up in different reduce executions.
+ * With the grouper, only the term matters in grouping the values.
+ *
+ */
+
 public class TermGrouper extends WritableComparator {
     protected TermGrouper() {
         super(TextPair.class, true);
