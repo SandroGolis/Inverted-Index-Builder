@@ -13,6 +13,10 @@ public class TermInfo implements Writable{
     private int TF;
     private IntWritableArray indices;
 
+    // empty constructor for reflection
+    public TermInfo() {
+    }
+
     public TermInfo(Long offset, IntWritableArray indices) {
         this.offset = offset;
         this.TF = indices.size();

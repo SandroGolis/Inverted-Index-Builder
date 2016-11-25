@@ -41,6 +41,16 @@ public class TextPair implements WritableComparable{
     }
 
     public void readFields(DataInput dataInput) throws IOException {
+        try {
+            if (first == null)
+                first = Text.class.newInstance();
+            if (second == null)
+                second = Text.class.newInstance();
+        } catch (java.lang.InstantiationException e) {
+            System.out.println("**************************************************************nothing");
+        } catch (java.lang.IllegalAccessException e) {
+            System.out.println("**************************************************************nothing");
+        }
         first.readFields(dataInput);
         second.readFields(dataInput);
     }
