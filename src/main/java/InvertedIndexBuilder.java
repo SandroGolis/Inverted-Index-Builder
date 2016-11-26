@@ -2,6 +2,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import util.*;
 import java.io.File;
@@ -28,7 +29,7 @@ import java.io.File;
 */
 
 public class InvertedIndexBuilder {
-    static Boolean LOCAL_MACHINE = true;
+    static Boolean LOCAL_MACHINE = false;
 
     public static void main(String[] args) throws Exception {
         if (LOCAL_MACHINE) {
@@ -36,18 +37,23 @@ public class InvertedIndexBuilder {
         }
 
         Configuration conf = new Configuration();
-        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
-        if (otherArgs.length != 2) {
-            System.err.println("Usage: InvertedIndexBuilder <in> <out>");
-            System.exit(2);
-        }
         conf.set("mapreduce.job.queuename", "hadoop05");
 
-        boolean success = runMapReduceJob(conf, otherArgs[0], otherArgs[1]);
+        String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
+        if (otherArgs.length != 3) {
+            System.err.println("Usage: InvertedIndexBuilder <in> <out> <0 (Text), 1 (SeqFileFormat)>");
+            System.exit(2);
+        }
+
+        String input = otherArgs[0];
+        String output = otherArgs[1];
+        boolean isSeqFileFormat = Integer.parseInt(otherArgs[2]) == 1;
+
+        boolean success = runMapReduceJob(conf, input, output, isSeqFileFormat);
         System.exit(success ? 0 : 1);
     }
 
-    public static boolean runMapReduceJob(Configuration conf, String inputPath, String outputPath) throws Exception {
+    public static boolean runMapReduceJob(Configuration conf, String inputPath, String outputPath, boolean isSeqFileFormat) throws Exception {
         Job job = Job.getInstance(conf, "InvertedIndexBuilderJob");
         job.setJarByClass(InvertedIndexBuilder.class);
 
@@ -74,7 +80,13 @@ public class InvertedIndexBuilder {
         job.setOutputValueClass(TermInfoArray.class);
 
         // output
-        FileOutputFormat.setOutputPath(job, new Path(outputPath));
+        if (isSeqFileFormat) {
+            job.setOutputFormatClass(SequenceFileOutputFormat.class);
+            SequenceFileOutputFormat.setOutputPath(job, new Path(outputPath));
+        } else {
+            FileOutputFormat.setOutputPath(job, new Path(outputPath));
+        }
+
         return job.waitForCompletion(true);
     }
 
