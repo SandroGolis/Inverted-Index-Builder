@@ -19,14 +19,18 @@ import java.util.List;
  */
 
 public class IndexReducer extends Reducer<TextPair, TermInfo, TextPair, TermInfoArray> {
-
+    static int MIN_TF = 2;
     public void reduce(TextPair termAndPageId, Iterable<TermInfo> values,
                        Context context) throws IOException, InterruptedException {
 
         List<TermInfo> list = new ArrayList<>();
+        int TFsum = 0;
         for (TermInfo termInfo : values) {
+            TFsum += termInfo.getTF();
             list.add(WritableUtils.clone(termInfo, context.getConfiguration()));
         }
+        if (TFsum <= MIN_TF)
+            return;
         Integer DF = list.size();
         TermInfoArray termsArray = new TermInfoArray(list.toArray(new TermInfo[]{}));
 
