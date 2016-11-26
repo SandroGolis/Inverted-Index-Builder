@@ -24,9 +24,8 @@ import java.util.regex.MatchResult;
  */
 
 public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, TermInfo> {
-    private static final String NEW_LINES = "[\\r\\n]+";
     private static final String NOT_ALPHABETIC = "[^a-zA-Z]";
-    static HashSet<String> stopWords = new HashSet<>();
+    private static HashSet<String> stopWords = new HashSet<>();
 
     protected void setup(Context context) throws IOException, InterruptedException {
         initializeStopWords("stop-words.txt");
@@ -34,11 +33,17 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
 
     @Override
     public void map(LongWritable offset, WikipediaPage page, Context context) throws IOException, InterruptedException {
-        String docId = page.getDocid();
         HashMap<String, IntWritableArray> offsets = new HashMap<>();
         EnglishStemmer stemmer = new EnglishStemmer();
 
-        String pageContent = page.getContent();
+        String pageContent = "";
+        try {
+            pageContent = page.getContent();
+        }
+        catch (NullPointerException e) {
+            return;
+        }
+
         Scanner scanner = new Scanner(pageContent).useDelimiter(NOT_ALPHABETIC);
 
         int lastStart = 0, lastEnd = 0, addition = 0;
@@ -74,6 +79,7 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
             }
         }
 
+        String docId = page.getDocid();
         for (String term : offsets.keySet()) {
             IntWritableArray indices = offsets.get(term);
             TextPair key = new TextPair(term, docId);
