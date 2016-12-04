@@ -1,3 +1,5 @@
+package InvertedIndexBuilder;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
@@ -29,7 +31,7 @@ import java.io.File;
 */
 
 public class InvertedIndexBuilder {
-    static Boolean LOCAL_MACHINE = false;
+    static Boolean LOCAL_MACHINE = true;
 
     public static void main(String[] args) throws Exception {
         if (LOCAL_MACHINE) {
@@ -41,7 +43,7 @@ public class InvertedIndexBuilder {
 
         String[] otherArgs = new GenericOptionsParser(conf, args).getRemainingArgs();
         if (otherArgs.length != 3) {
-            System.err.println("Usage: InvertedIndexBuilder <in> <out> <0 (Text), 1 (SeqFileFormat)>");
+            System.err.println("Usage: InvertedIndexBuilder.InvertedIndexBuilder <in> <out> <0 (Text), 1 (SeqFileFormat)>");
             System.exit(2);
         }
 

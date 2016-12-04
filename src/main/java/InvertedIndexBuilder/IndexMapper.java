@@ -1,3 +1,5 @@
+package InvertedIndexBuilder;
+
 import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -25,7 +27,7 @@ import java.util.regex.MatchResult;
 
 public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, TermInfo> {
     private static final String NOT_ALPHABETIC = "[^a-zA-Z]";
-    private static HashSet<String> stopWords = new HashSet<>();
+    private static HashSet<String> stopWords = new HashSet<String>();
 
     protected void setup(Context context) throws IOException, InterruptedException {
         initializeStopWords("stop-words.txt");
@@ -33,7 +35,7 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
 
     @Override
     public void map(LongWritable offset, WikipediaPage page, Context context) throws IOException, InterruptedException {
-        HashMap<String, IntWritableArray> offsets = new HashMap<>();
+        HashMap<String, IntWritableArray> offsets = new HashMap<String, IntWritableArray>();
         EnglishStemmer stemmer = new EnglishStemmer();
 
         String pageContent = "";
@@ -52,7 +54,6 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
             MatchResult match = scanner.match();
 
             int start = match.start();
-
             if (start < lastStart) {
                 // Scanner has scanned another 1K buffer
                 addition += lastEnd + 1;
@@ -83,7 +84,7 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
         for (String term : offsets.keySet()) {
             IntWritableArray indices = offsets.get(term);
             TextPair key = new TextPair(term, docId);
-            TermInfo value = new TermInfo(offset.get(), indices);
+            TermInfo value = new TermInfo(Integer.parseInt(docId), offset.get(), indices);
             context.write(key, value);
         }
     }

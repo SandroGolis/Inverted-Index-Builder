@@ -7,6 +7,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class TermInfo implements Writable{
+    private int docId;
     private Long offset;
     private int TF;
     private IntWritableArray indices;
@@ -18,19 +19,22 @@ public class TermInfo implements Writable{
         return TF;
     }
 
-    public TermInfo(Long offset, IntWritableArray indices) {
+    public TermInfo(int docId, Long offset, IntWritableArray indices) {
+        this.docId = docId;
         this.offset = offset;
         this.TF = indices.size();
         this.indices = indices;
     }
 
     public void write(DataOutput dataOutput) throws IOException {
+        dataOutput.writeInt(docId);
         dataOutput.writeLong(offset);
         dataOutput.writeInt(TF);
         indices.write(dataOutput);
     }
 
     public void readFields(DataInput dataInput) throws IOException {
+        docId = dataInput.readInt();
         offset = dataInput.readLong();
         TF = dataInput.readInt();
 
@@ -39,15 +43,12 @@ public class TermInfo implements Writable{
         indices.readFields(dataInput);
     }
 
-    private void readFromString(String indicesStr) {
-        // TODO implement
-    }
-
     @Override
     public String toString() {
         String indicesStr = Joiner.on(",").join(indices);
         StringBuilder sb = new StringBuilder();
         sb.append("<")
+                .append(docId).append(",")
                 .append(offset).append(",")
                 .append(TF).append(",[")
                 .append(indicesStr).append("]>");

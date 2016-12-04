@@ -1,3 +1,5 @@
+package InvertedIndexBuilder;
+
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapreduce.Reducer;
 import util.TermInfo;
@@ -19,11 +21,11 @@ import java.util.List;
  */
 
 public class IndexReducer extends Reducer<TextPair, TermInfo, TextPair, TermInfoArray> {
-    static int MIN_TF = 2;
+    private static int MIN_TF = 10;
     public void reduce(TextPair termAndPageId, Iterable<TermInfo> values,
                        Context context) throws IOException, InterruptedException {
 
-        List<TermInfo> list = new ArrayList<>();
+        List<TermInfo> list = new ArrayList<TermInfo>();
         int TFsum = 0;
         for (TermInfo termInfo : values) {
             TFsum += termInfo.getTF();
@@ -31,6 +33,7 @@ public class IndexReducer extends Reducer<TextPair, TermInfo, TextPair, TermInfo
         }
         if (TFsum <= MIN_TF)
             return;
+
         Integer DF = list.size();
         TermInfoArray termsArray = new TermInfoArray(list.toArray(new TermInfo[]{}));
 

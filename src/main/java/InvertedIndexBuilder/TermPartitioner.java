@@ -1,3 +1,5 @@
+package InvertedIndexBuilder;
+
 import org.apache.hadoop.mapreduce.Partitioner;
 import util.TermInfo;
 import util.TextPair;
