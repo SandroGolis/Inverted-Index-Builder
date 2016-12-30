@@ -10,6 +10,7 @@ import util.TextPair;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -38,11 +39,14 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
         HashMap<String, IntWritableArray> offsets = new HashMap<String, IntWritableArray>();
         EnglishStemmer stemmer = new EnglishStemmer();
 
+        if (page.isEmpty() || page.isDisambiguation() || page.isRedirect())
+            return;
+
         String pageContent = "";
+
         try {
             pageContent = page.getContent();
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             return;
         }
 
@@ -56,7 +60,7 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
             int start = match.start();
             if (start < lastStart) {
                 // Scanner has scanned another 1K buffer
-                addition += lastEnd + 1;
+                addition += lastEnd + 1 - start;
             }
             lastStart = start;
             lastEnd = match.end();
@@ -89,7 +93,6 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
         }
     }
 
-
     private void initializeStopWords(String fileName) throws IOException {
         Scanner stop_words_scanner = getScanner(fileName);
         while (stop_words_scanner.hasNextLine()) {
@@ -106,8 +109,7 @@ public class IndexMapper extends Mapper<LongWritable, WikipediaPage, TextPair, T
 
         if (InvertedIndexBuilder.LOCAL_MACHINE) {
             scanner = new Scanner(new File(fileUrl));
-        }
-        else {
+        } else {
             String jarUrl = fileUrl.substring(5, fileUrl.length() - fileName.length() - 2);
             JarFile jf = new JarFile(new File(jarUrl));
             scanner = new Scanner(jf.getInputStream(jf.getEntry(fileName)));

@@ -1,5 +1,6 @@
 package InvertedIndexBuilder;
 
+import edu.umd.cloud9.collection.wikipedia.WikipediaPage;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
@@ -7,7 +8,10 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 import util.*;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 
 
 /*
@@ -31,7 +35,7 @@ import java.io.File;
 */
 
 public class InvertedIndexBuilder {
-    static Boolean LOCAL_MACHINE = true;
+    static Boolean LOCAL_MACHINE = false;
 
     public static void main(String[] args) throws Exception {
         if (LOCAL_MACHINE) {
