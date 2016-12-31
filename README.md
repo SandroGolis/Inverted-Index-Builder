@@ -27,21 +27,21 @@ scalable. The most frequent terms will cause the reducer to sort bigger lists an
 the load on the reducer would grow with the addition of data. Instead, we have
 overwritten the frameworks partitioner and comparator to achieve a scalable
 solution for the sorting.
-  ○ The mapper outputs <Term,PageId> as a composite key. The pageId is
+  - The mapper outputs <Term,PageId> as a composite key. The pageId is
     injected only for the sort purpose.
-  ○ Custom Partitioner - makes sure all the records with the same term end up
+  - Custom Partitioner - makes sure all the records with the same term end up
     at the same reducer. (Partition(<Term, PageId>) = hash(Term) mod N
-  ○ Custom Comparator - makes sure that the reducer receives list of values
+  - Custom Comparator - makes sure that the reducer receives list of values
     that correspond to the same term only. Without the custom comparator,
     since we have the composite key <Term,PageId>, 2 terms from
     different pages would have gone to different reducers).
-  ○ This steps are taking the advantage of map-reduce frameworks sorting
+  - This steps are taking the advantage of map-reduce frameworks sorting
     properties and cause the secondary sorting by pageId.
 
 4. Compact size - we addressed the following language processing techniques:
-  ○ Stemming. We used the opensource Porter Stemmer to normalize the
+  - Stemming. We used the opensource Porter Stemmer to normalize the
     close variants of the words to a single form.
-  ○ Stop words removal. We used a list of ~120 english stop words from the
+  - Stop words removal. We used a list of ~120 english stop words from the
     internet. In addition we ran a wordCount task on the wikipedia dump file
     and handpicked additional ~40 most frequent words to be added to our
     stop list. The words were chosen according to our intuition of less
