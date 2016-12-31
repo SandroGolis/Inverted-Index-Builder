@@ -27,14 +27,15 @@ scalable. The most frequent terms will cause the reducer to sort bigger lists an
 the load on the reducer would grow with the addition of data. Instead, we have
 overwritten the frameworks partitioner and comparator to achieve a scalable
 solution for the sorting.
-  - The mapper outputs <Term,PageId> as a composite key. The pageId is
+  - The mapper outputs [Term,PageId] as a composite key. The pageId is
     injected only for the sort purpose.
   - Custom Partitioner - makes sure all the records with the same term end up
-    at the same reducer. (Partition(<Term, PageId>) = hash(Term) mod N
+    at the same reducer.
+    Partition([Term, PageId]) = hash(Term) mod N
   - Custom Comparator - makes sure that the reducer receives list of values
     that correspond to the same term only. Without the custom comparator,
-    since we have the composite key <Term,PageId>, 2 terms from
-    different pages would have gone to different reducers).
+    since we have the composite key [Term,PageId], 2 terms from
+    different pages would have gone to different reducers.
   - This steps are taking the advantage of map-reduce frameworks sorting
     properties and cause the secondary sorting by pageId.
 
@@ -48,8 +49,11 @@ solution for the sorting.
     informative words.
     
 Our inverted index is of the following format:
-Term,DF <PageId,Offset,TF,[idx_1,...,idx_TF]>,..., <..>
+Term,DF     [PageId,Offset,TF,(idx_1,...,idx_TF)],..., [..]
+
 Df = document frequency
+
 TF = term frequency
+
 Idx = index of the beginning of the term inside the document
 
