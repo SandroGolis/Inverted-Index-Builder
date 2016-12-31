@@ -57,3 +57,15 @@ TF = term frequency
 
 Idx = index of the beginning of the term inside the document
 
+
+# Make Offsets To Inverted Index
+The inverted index, built on the whole wikipedia dump file was around 6GB.
+We wanted to be able to do a quick search inside the inverted index, therefore
+we decided to build a secondary index on the inverted index.
+Each line in the offsets file is of the form [term, offset]
+while "offset" is the byte offset inside the inverted index file to the beginning
+of the relevant term's line.
+This index is built by MakeOffsetsToInvertedIndex mapreduce job.
+
+
+
